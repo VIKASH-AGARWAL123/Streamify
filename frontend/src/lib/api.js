@@ -1,4 +1,3 @@
-import axios from "axios";
 import { axiosInstance } from "../lib/axios.js";
 export const signup = async (signupData) => {
   const response = await axiosInstance.post("/auth/signup", signupData);
@@ -41,11 +40,12 @@ export async function getRecommendedUsers() {
 
 export async function getOutgoingFriendReqs() {
   const response = await axiosInstance.get("/users/outgoing-friend-requests");
-  return response.data;
+  return response.data.outgoingRequests;
 }
 
 export async function sendFriendRequest(userId) { 
   const response= await axiosInstance.post(`/users/friend-request/${userId}`)
+  return response.data;
 }
 
 export async function getFriendRequests() {
@@ -55,5 +55,10 @@ export async function getFriendRequests() {
 
 export async function acceptFriendRequest(requestId) {
   const response = await axiosInstance.put(`/users/friend-request/${requestId}/accept`);
+  return response.data;
+}
+
+export async function getStreamToken() {
+  const response = await axiosInstance.get("/chat/token");
   return response.data;
 }

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import {
   getOutgoingFriendReqs,
   getRecommendedUsers,
@@ -21,7 +21,6 @@ import NoFriendsFound from "../components/NoFriendsFound";
 
 const HomePage = () => {
   const queryClient = useQueryClient();
-  const [outgoingRequestsIds, setOutgoingRequestsIds] = useState(new Set());
 
   const { data: friends = [], isLoading: loadingFriends } = useQuery({
     queryKey: ["friends"],
@@ -38,21 +37,30 @@ const HomePage = () => {
     queryFn: getOutgoingFriendReqs,
   });
 
-  const { mutate: sendRequestMutation, isPending } = useMutation({
+  const {
+    mutate: sendRequestMutation,
+    isPending,
+    variables: pendingRequestUserId,
+  } = useMutation({
     mutationFn: sendFriendRequest,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: ["outgoingFriendReqs"] }),
+    onSuccess: (_data, userId) => {
+      queryClient.setQueryData(["outgoingFriendReqs"], (oldRequests = []) => {
+        const alreadyTracked = oldRequests.some(
+          (request) => request.recipient._id === userId,
+        );
+
+        if (alreadyTracked) return oldRequests;
+
+        return [...oldRequests, { recipient: { _id: userId } }];
+      });
+      queryClient.invalidateQueries({ queryKey: ["outgoingFriendReqs"] });
+    },
   });
 
-  useEffect(() => {
-    const outgoingIds = new Set();
-    if (outgoingFriendReqs && outgoingFriendReqs.length > 0) {
-      outgoingFriendReqs.forEach((req) => {
-        outgoingIds.add(req.recipient._id);
-      });
-      setOutgoingRequestsIds(outgoingIds);
-    }
-  }, [outgoingFriendReqs]);
+  const outgoingRequestsIds = useMemo(
+    () => new Set(outgoingFriendReqs?.map((req) => req.recipient._id) ?? []),
+    [outgoingFriendReqs],
+  );
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -113,6 +121,8 @@ const HomePage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {recommendedUsers.map((user) => {
                 const hasRequestBeenSent = outgoingRequestsIds.has(user._id);
+                const isRequestPendingForUser =
+                  isPending && pendingRequestUserId === user._id;
 
                 return (
                   <div
@@ -160,7 +170,7 @@ const HomePage = () => {
                           hasRequestBeenSent ? "btn-disabled" : "btn-primary"
                         } `}
                         onClick={() => sendRequestMutation(user._id)}
-                        disabled={hasRequestBeenSent || isPending}
+                        disabled={hasRequestBeenSent || isRequestPendingForUser}
                       >
                         {hasRequestBeenSent ? (
                           <>

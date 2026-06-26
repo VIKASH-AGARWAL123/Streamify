@@ -20,7 +20,7 @@ const App = () => {
   const { theme } = useThemeStore();
   
   const isAuthenticated = Boolean(authUser);
-  const isOnboarded = authUser?.isOnboarded;;
+  const isOnboarded = authUser?.isOnboarded;
   
   if(isLoading) return <PageLoader />
   return (
@@ -77,16 +77,32 @@ const App = () => {
           element={
             isAuthenticated && isOnboarded ? (
               <Layout showSidebar={true}>
-              <NotificationsPage/>
-            </Layout>):(<Navigate to ={!isAuthenticated? "/login" : "/onboarding"}/>)  }
+                <NotificationsPage />
+              </Layout>
+            ) : (
+              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            )
+          }
         />
         <Route
-          path="/chat"
-          element={isAuthenticated ? <ChatPage /> : <Navigate to="/login" />}
+          path="/chat/:id"
+          element={
+            isAuthenticated && isOnboarded ? (
+              <ChatPage />
+            ) : (
+              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            )
+          }
         />
         <Route
-          path="/call"
-          element={isAuthenticated ? <CallPage /> : <Navigate to="/login" />}
+          path="/call/:id"
+          element={
+            isAuthenticated && isOnboarded ? (
+              <CallPage />
+            ) : (
+              <Navigate to={!isAuthenticated ? "/login" : "/onboarding"} />
+            )
+          }
         />
       </Routes>
       <Toaster />

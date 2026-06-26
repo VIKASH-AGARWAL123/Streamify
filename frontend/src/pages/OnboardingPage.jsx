@@ -45,7 +45,7 @@ const OnboardingPage = () => {
 
   const handleRandomAvatar = () => {
     const idx = Math.floor(Math.random() * 100) + 1; // 1-100 included
-    const randomAvatar = `https://i.pravatar.cc/${idx}`;
+    const randomAvatar = `https://avatarapi.runflare.run/public/${idx}.png`;
 
     setFormState({ ...formState, profilePic: randomAvatar });
     toast.success("Random profile picture generated!");
