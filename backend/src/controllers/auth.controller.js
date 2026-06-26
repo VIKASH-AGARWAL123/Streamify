@@ -23,8 +23,8 @@ export async function signup(req, res) {
       return res.status(400).json({ message: "Email already in use,please use a different email" });
     }
 
-    const idx = Math.floor(Math.random() * 1000) + 1;
-    const randomAvatar = `https://i.pravatar.cc/${idx}`;
+    const idx = Math.floor(Math.random() * 100) + 1;
+    const randomAvatar = `https://avatarapi.runflare.run/public/${idx}.png`;
 
     const newUser = await User.create({
       email,
@@ -48,9 +48,9 @@ export async function signup(req, res) {
     
     res.cookie("jwt", token, {
       maxAge: 7 * 24 * 60 * 60 * 1000, //7 days
-      httpOnly: true,
+      httpOnly: true,  //prevents xSS attacks
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict"
+      sameSite: "strict"  //prevnt CSRF attacks
     })
 
     res.status(201).json({ success: true, user: newUser });

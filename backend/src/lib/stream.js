@@ -8,16 +8,18 @@ const apiSecret = process.env.TALKIE_SECRET_KEY;
 
 if (!apiKey || !apiSecret) {
     console.error("Stream API key and secret is missing.");
+    throw new Error("Stream API key and secret is missing.");
 }
 
 const streamClient = StreamChat.getInstance(apiKey, apiSecret);
 
 export const upsertStreamUser = async (userData) => {
-    try {   
-        await streamClient.upsertUsers([userData]);
-        return userData;
+    try {
+      await streamClient.upsertUsers([userData]);
+      return userData;
     } catch (error) {
-        console.error("Error creating Stream user:", error);
+      console.error("Error creating Stream user:", error);
+      throw error;
     }
 }
 
@@ -28,6 +30,7 @@ export const generateStreamToken = (userId) => {
         return streamClient.createToken(userIdStr);
     } catch (error) {
         console.error("Error genearting Stram token:", error);
+        throw error;
     }
 };
 
