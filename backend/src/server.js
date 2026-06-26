@@ -15,10 +15,12 @@ const PORT = process.env.PORT || 5001;
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(cors({
-    origin: 'http://localhost:5173', // Adjust this to your frontend URL
-    credentials: true, // Allow cookies to be sent with requests
-}));
+app.use(
+  cors({
+    origin: process.env.CLIENT_URL,
+    credentials: true,
+  }),
+);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/chat", chatRoutes);
