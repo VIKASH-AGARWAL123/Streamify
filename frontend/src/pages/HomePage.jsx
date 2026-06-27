@@ -57,10 +57,15 @@ const HomePage = () => {
     },
   });
 
-  const outgoingRequestsIds = useMemo(
-    () => new Set(outgoingFriendReqs?.map((req) => req.recipient._id) ?? []),
-    [outgoingFriendReqs],
-  );
+const outgoingRequestsIds = useMemo(
+  () =>
+    new Set(
+      (outgoingFriendReqs ?? [])
+        .filter((req) => req?.recipient?._id)
+        .map((req) => req.recipient._id),
+    ),
+  [outgoingFriendReqs],
+);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
